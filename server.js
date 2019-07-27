@@ -24,6 +24,12 @@ app.get("/api/hello", function (req, res) {
   res.json({greeting: 'hello API'});
 });
 
+// Timestamp
+app.get('/api/timestamp', (req, res) => {
+  const date = new Date()
+  res.json({ unix: date.getTime(), utc: date.toString() })
+})
+
 app.get('/api/timestamp/:dateString', (req, res) => {
   const { dateString } = req.params
   const isMilli = Number(dateString)
@@ -33,6 +39,15 @@ app.get('/api/timestamp/:dateString', (req, res) => {
   res.json({ unix: milli, utc: date.toString() })
 })
 
+
+// header parser
+app.get('/api/whoami', (req, res) => {
+  res.json({
+    ipaddress: req.ip,
+    language: req.headers['accept-language'],
+    software: req.headers['user-agent']
+  })
+})
 
 
 // listen for requests :)
