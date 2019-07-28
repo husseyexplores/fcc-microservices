@@ -4,10 +4,12 @@ const shortUrlSchema = new Schema({
   original_url: {
     type: String,
     required: true,
+    trim: true,
   },
   short_url: {
     type: String,
     required: true,
+    trim: true,
   }
 })
 
