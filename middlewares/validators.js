@@ -193,3 +193,12 @@ exports.getExerciseLogValidators = [
     },
   ])
 ]
+
+exports.postFileMetadataValidators = [
+  checkBody([
+    {
+      param: 'upfile',
+      required: true,
+    }
+  ])
+]

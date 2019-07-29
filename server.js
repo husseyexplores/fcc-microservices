@@ -1,5 +1,6 @@
 const dns = require('dns')
 const express = require('express')
+const multer = require('multer')
 const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const shortid = require('shortid')
@@ -243,12 +244,43 @@ app.get('/api/exercise/log', [getExerciseLogValidators], async (req, res) => {
   }
 })
 
+/**
+ * ----------------------------
+ *  File Metadata Microservice
+ * ----------------------------
+ */
+
+// Store files in memory, since it is hosted on glitch, not a production server
+const MAX_UPLOAD_LIMIT_IN_BYTES = 1024 * 1024 * 5
+const MAX_UPLOAD_LIMIT_IN_MB = Math.floor(MAX_UPLOAD_LIMIT_IN_BYTES / 1024 / 1024)
+
+const upload = multer({ 
+  storage: multer.memoryStorage(),
+  limits: {
+    fileSize: MAX_UPLOAD_LIMIT_IN_BYTES,
+  },
+}).single('upfile')
+
+app.post('/api/file-metadata', (req, res) => {
+  upload(req, res, err => {
+    if (err && err.code === 'LIMIT_FILE_SIZE') {
+      return res.json({ error: `Max file limit exceeded. (Max limit is: ${MAX_UPLOAD_LIMIT_IN_MB} MB)` })
+    }
+
+    if (!req.file) {
+      return res.status(422).json({ error: [{ param: 'upfile', msg: 'Missing file' }] })
+    }
+    const { originalname: name, mimetype: type, size } = req.file
+    res.json({ name, type, size })
+  })
+})
+
 // ----------------------------------------------------------------------
 
 // 404 - Catch all
 app.use((req, res, next) => {
   res.status(404).json({
-    error: 'Resource not found'
+    error: `404 - Resource not found at this endpoint: ${req.path}`
   })
 })
 
